@@ -2,28 +2,59 @@
 <html>
 <head>
   <title>Login</title>
+
+  <!-- Particle.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #74ebd5, #9face6);
-      color: #333;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
     }
 
+    /* Particle Background Layer */
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      top: 0;
+      left: 0;
+    }
+
+    /* Login Card */
     .login-container {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      padding: 35px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
       animation: slideIn 0.8s ease forwards;
       opacity: 0;
       transform: translateY(50px);
       max-width: 400px;
       width: 100%;
+      border: 2px solid transparent;
+      transition: transform 0.3s ease;
+    }
+
+    /* 3D tilt */
+    .login-container:hover {
+      transform: translateY(-5px) rotateX(4deg) rotateY(-4deg);
+    }
+
+    /* Neon Border */
+    .login-container:hover {
+      border-color: #4A90E2;
+      box-shadow: 0 0 20px #4A90E2,
+                  0 0 40px #4A90E2,
+                  0 0 60px #4A90E2;
     }
 
     @keyframes slideIn {
@@ -33,10 +64,32 @@
       }
     }
 
+    /* Glowing Logo */
+    .logo {
+      font-size: 40px;
+      font-weight: bold;
+      color: white;
+      text-align: center;
+      margin-bottom: 15px;
+      text-shadow: 0 0 10px #4A90E2,
+                   0 0 20px #4A90E2,
+                   0 0 30px #4A90E2;
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from {
+        text-shadow: 0 0 10px #4A90E2;
+      }
+      to {
+        text-shadow: 0 0 30px #1c5fb4;
+      }
+    }
+
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #4A90E2;
+      color: #fff;
     }
 
     input {
@@ -45,11 +98,13 @@
       margin: 10px 0;
       border-radius: 8px;
       border: 1px solid #ccc;
-      transition: border 0.3s;
+      transition: border 0.3s, transform 0.2s;
+      background: rgba(255, 255, 255, 0.7);
     }
 
     input:focus {
       border-color: #4A90E2;
+      transform: scale(1.03);
       outline: none;
     }
 
@@ -75,20 +130,45 @@
       display: block;
       text-align: center;
       margin-top: 15px;
-      color: #4A90E2;
+      color: white;
       text-decoration: none;
     }
+
   </style>
 </head>
+
 <body>
+
+  <!-- Particle Background -->
+  <div id="particles-js"></div>
+
   <div class="login-container">
-    <h2>Login</h2>
+
+    <div class="logo">⚡ LOGIN ⚡</div>
+
+    <h2>Welcome Back</h2>
+
     <form method="POST">
-      <input name="username" placeholder="Username" required>
+      <input name="username" placeholder="Email or Username" required>
       <input name="password" type="password" placeholder="Password" required>
       <button type="submit">Login</button>
     </form>
+
     <a href="/register">Don't have an account? Register</a>
   </div>
+
+  <!-- Particle Configuration -->
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 90 },
+        "size": { "value": 3 },
+        "move": { "speed": 2 },
+        "line_linked": { "enable": true, "distance": 150 },
+        "opacity": { "value": 0.5 }
+      }
+    });
+  </script>
+
 </body>
 </html>

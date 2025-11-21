@@ -190,11 +190,10 @@
     <a href="/add" class="action-btn">➕ Add Expense</a>
     <a href="/add_income" class="action-btn">➕ Add Income</a>
     <a href="/budgets?month={{ selected_month }}" class="action-btn">🎯 Budgets</a>
-    <a href="/export/csv" class="action-btn">⬇️ Export CSV</a>
-    <a href="/export/pdf/{{ selected_month }}" class="action-btn">⬇️ Export PDF ({{ selected_month }})</a>
+    <a href="{{ url_for('export_csv') }}" class="action-btn">⬇️ Export CSV</a>
+    <a href="{{ url_for('export_pdf', month=selected_month) }}" class="action-btn">⬇️ Export PDF</a>
     <a href="/logout" class="action-btn logout-btn">🚪 Logout</a>
   </div>
-
   <!-- Budget Progress + Warnings -->
   {% if progress and progress|length > 0 %}
   <div class="soft-card">

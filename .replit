@@ -5,7 +5,19 @@ hidden = [".pythonlibs"]
 
 [nix]
 channel = "stable-23_05"
+packages = ["freetype", "glibcLocales"]
 
 [deployment]
 run = ["sh", "-c", "python3 main.py"]
 deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[agent]
+expertMode = true

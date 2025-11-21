@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      background:#f5f7fa; color:#333; padding:30px;
+      transition:background .5s ease, color .5s ease;
+    }
+    body.dark-mode { background:#121212; color:#e0e0e0; }
+
+    h1,h2 { margin-bottom:15px; color:black; text-shadow:1px 1px 1px #ddd; }
+    body.dark-mode h1, body.dark-mode h2 { color:#e0e0e0; text-shadow:none; }
+    body.dark-mode h3 { color:#80cbc4; }
+
+    h3{ margin-bottom:15px; color:whitesmoke; text-shadow:1px 1px 1px #ddd; }
+      body.dark-mode h1, body.dark-mode h2 { color:#e0e0e0; text-shadow:none; }
+      body.dark-mode h3 { color:#80cbc4;
+      
+    }
+
+    a { text-decoration:none; color:#4A90E2; transition:color .3s; }
+    a:hover { color:#1c5fb4; }
+
+    button {
+      background:#4A90E2; color:white; border:none; padding:10px 16px;
+      border-radius:8px; cursor:pointer; font-weight:600;
+      transition:background .3s ease, transform .2s ease;
+    }
+    button:hover { background:#1c5fb4; transform:translateY(-1px); }
+
+    .dark-toggle {
+      position:fixed; top:20px; right:30px; padding:8px 12px; font-size:20px;
+      background:transparent; color:inherit; border:1px solid transparent;
+    }
+    .dark-toggle:hover { transform:rotate(15deg) scale(1.2); }
+
+    form { margin-bottom:20px; }
+
+    input, select {
+      padding:10px; border-radius:8px; border:1px solid #ccc;
+      width:100%; max-width:400px; transition:border .3s; background:white;
+    }
+    input:focus, select:focus { border-color:#4A90E2; outline:none; }
+    body.dark-mode input, body.dark-mode select { background:#1e1e1e; color:#eee; border-color:#444; }
+
+    .stats { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:20px; }
+    .stat {
+      color:white; padding:18px; border-radius:14px; flex:1; min-width:220px;
+      box-shadow:0 4px 10px rgba(0,0,0,.1); text-align:center;
+      transition:transform .2s ease;
+    }
+    .stat:hover { transform:translateY(-5px); }
+    .income-box { background:linear-gradient(135deg,#a18cd1,#fbc2eb); }
+    .expense-box { background:linear-gradient(135deg,#f85032,#e73827); }
+    .balance-box { background:linear-gradient(135deg,#7f7fd5,#86a8e7,#91eae4); }
+    .dark-mode .stat { box-shadow:0 4px 12px rgba(255,255,255,.08); }
+
+    .actions-bar {
+      display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 26px 0;
+    }
+    .action-btn {
+      background:#4A90E2; color:white; padding:10px 16px; border-radius:8px; font-weight:600;
+    }
+    .logout-btn { background:#f44336; }
+    .logout-btn:hover { background:#c62828; }
+
+    .soft-card {
+      background:white; border-radius:14px; padding:18px;
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
+    }
+    body.dark-mode .soft-card { background:#1e1e1e; box-shadow:0 4px 10px rgba(255,255,255,.05); }
+
+    .grid {
+      display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
+
+    .charts-container {
+      display:grid; gap:20px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      margin-top:10px;
+    }
+    .chart-box { max-width:100%; }
+    canvas { border-radius:12px; background:#ffffff; padding:10px; }
+    body.dark-mode canvas { background:#1e1e1e; }
+
+    ul { list-style-type:none; padding:0; margin-top:10px; }
+    li {
+      background:white; padding:12px; margin-bottom:10px; border-radius:10px;
+      box-shadow:0 2px 5px rgba(0,0,0,.08); transition:transform .2s ease;
+    }
+    li:hover { transform:scale(1.01); }
+    body.dark-mode li { background:#1e1e1e; color:#eee; box-shadow:0 2px 5px rgba(255,255,255,.05); }
+
+    .progress-row { display:flex; justify-content:space-between; font-size:.95rem; margin-bottom:6px; }
+    .progress-bar {
+      height:10px; border-radius:999px; background:#e8edf5; overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.06);
+    }
+    .progress-fill { height:100%; width:0%; background:linear-gradient(90deg,#4A90E2,#00c6ff); transition:width .8s ease; }
+    .over .progress-fill { background:linear-gradient(90deg,#ff5858,#f09819); }
+
+    .banner {
+      padding:12px 14px; border-left:5px solid; border-radius:8px; margin:8px 0 16px;
+    }
+    .banner.info { background:#e3f2fd; border-color:#1e88e5; color:#0d47a1; }
+    .banner.warn { background:#fff3e0; border-color:#fb8c00; color:#e65100; }
+    .banner.bad  { background:#ffebee; border-color:#e53935; color:#b71c1c; }
+
+    @media (max-width: 600px) { .stats { flex-direction:column; } }
+  </style>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      const icon = document.getElementById("theme-icon");
+      const isDark = document.body.classList.contains("dark-mode");
+      icon.textContent = isDark ? "☀️" : "🌙";
+      localStorage.setItem("dark-mode", isDark ? "1" : "0");
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem("dark-mode") === "1") {
+        document.body.classList.add("dark-mode");
+        const icon = document.getElementById("theme-icon");
+        if (icon) icon.textContent = "☀️";
+      }
+    });
+  </script>
+</head>
+<body>
+  <button class="dark-toggle" onclick="toggleDarkMode()" id="theme-icon">🌙</button>
+
+  <h1>Welcome to Personal Income Site</h1>
+
+  <!-- Flash messages with SweetAlert -->
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          {% for category, message in msgs %}
+            Swal.fire({
+              icon: "{{ 'error' if category == 'danger' else 'warning' if category == 'warning' else 'success' }}",
+              title: "{{ message }}",
+              timer: 5000,
+              showConfirmButton: false,
+              toast: true,
+              position: "top-end"
+            });
+          {% endfor %}
+        });
+      </script>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Month Filter -->
+  <form method="POST">
+    <label><strong>Select Month:</strong></label>
+    <input type="month" name="month" value="{{ selected_month }}">
+    <button type="submit">Filter</button>
+  </form>
+
+  <!-- Daily Limit Banner -->
+  <div id="daily-limit-banner" class="banner info" style="display:none;"></div>
+
+  <!-- KPI Cards -->
+  <div class="stats">
+    <div class="stat income-box">
+      <h3>💵 Total Income</h3>
+      <p>₹{{ total_income }}</p>
+    </div>
+    <div class="stat expense-box">
+      <h3>💸 Total Expenses</h3>
+      <p>₹{{ total_expenses }}</p>
+    </div>
+    <div class="stat balance-box">
+      <h3>🧾 Balance</h3>
+      <p>₹{{ balance }}</p>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions-bar">
+    <a href="/add" class="action-btn">➕ Add Expense</a>
+    <a href="/add_income" class="action-btn">➕ Add Income</a>
+    <a href="/budgets?month={{ selected_month }}" class="action-btn">🎯 Budgets</a>
+    <a href="/export/csv" class="action-btn">⬇️ Export CSV</a>
+    <a href="/export/pdf/{{ selected_month }}" class="action-btn">⬇️ Export PDF ({{ selected_month }})</a>
+    <a href="/logout" class="action-btn logout-btn">🚪 Logout</a>
+  </div>
+
+  <!-- Budget Progress + Warnings -->
+  {% if progress and progress|length > 0 %}
+  <div class="soft-card">
+    <h3>🎯 Budget Progress — {{ selected_month }}</h3>
+    <div class="grid">
+      {% for p in progress %}
+      <div>
+        <div class="progress-row">
+          <div><strong>{{ p.category }}</strong></div>
+          <div>₹{{ p.spent }} / ₹{{ p.budget }} ({{ p.pct }}%)</div>
+        </div>
+        <div class="progress-bar {{ 'over' if p.spent > p.budget else '' }}">
+          <div class="progress-fill" style="width: {{ [p.pct, 100]|min }}%;"></div>
+        </div>
+        {% if p.spent > p.budget %}
+          <div class="banner bad" style="margin-top:8px;">⚠️ Exceeded budget for {{ p.category }}!</div>
+        {% elif p.pct >= 90 %}
+          <div class="banner warn" style="margin-top:8px;">🟠 Nearing budget for {{ p.category }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Charts -->
+  <div class="charts-container" style="margin-top:20px;">
+    <div class="soft-card chart-box">
+      <h2>Income vs Expense</h2>
+      <canvas id="incomeExpenseChart" height="280"></canvas>
+    </div>
+    <div class="soft-card chart-box">
+      <h2>Daily Income and Expenses ({{ selected_month }})</h2>
+      <canvas id="barChart" height="280"></canvas>
+    </div>
+    <div class="soft-card chart-box">
+      <h2>30-Day Expense Trend</h2>
+      <canvas id="trendChart" height="280"></canvas>
+    </div>
+    <div class="soft-card chart-box">
+      <h3>Category Breakdown</h3>
+      <canvas id="categoryChart" height="280"></canvas>
+    </div>
+  </div>
+
+  <!-- Expense History -->
+  <div class="soft-card" style="margin-top:20px;">
+    <h2>💸 Expense History</h2>
+    <ul>
+      {% for e in expenses %}
+        <li>
+          <strong>{{ e.title or 'Untitled' }}</strong> — ₹{{ e.amount }} ({{ e.category }}) on {{ e.date }}
+          <form action="/delete/expense/{{ e.id }}" method="POST" style="display:inline;">
+            <button type="submit" style="margin-left:10px; background:#f44336;">🗑️ Delete</button>
+          </form>
+        </li>
+      {% else %}
+        <li>No expenses found for this month.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Income History -->
+  <div class="soft-card" style="margin-top:20px;">
+    <h2>💵 Income History</h2>
+    <ul>
+      {% for i in income %}
+        <li>
+          <strong>{{ i.source or 'Unknown' }}</strong> — ₹{{ i.amount }} on {{ i.date }}
+          <form action="/delete/income/{{ i.id }}" method="POST" style="display:inline;">
+            <button type="submit" style="margin-left:10px; background:#f44336;">🗑️ Delete</button>
+          </form>
+        </li>
+      {% else %}
+        <li>No incomes found for this month.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Clear All -->
+  <form action="/delete/all" method="POST" style="margin-top:15px;">
+    <button type="submit" class="action-btn logout-btn">🧹 Clear All History</button>
+  </form>
+
+  <!-- Chart.js + Page Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function createGradient(ctx, c1, c2) {
+      const g = ctx.createLinearGradient(0,0,0,300);
+      g.addColorStop(0, c1); g.addColorStop(1, c2);
+      return g;
+    }
+
+    // PIE
+    const pieCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+    new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Income', 'Expenses'],
+        datasets: [{
+          data: [{{ total_income }}, {{ total_expenses }}],
+          backgroundColor: [
+            createGradient(pieCtx, '#00c9ff', '#92fe9d'),
+            createGradient(pieCtx, '#f5576c', '#f093fb')
+          ],
+          borderColor: '#fff', borderWidth: 2
+        }]
+      },
+      options: { plugins: { legend:{ position:'bottom' } } }
+    });
+
+    // BAR
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    const barIncomeGradient  = createGradient(barCtx, '#4facfe', '#00f2fe');
+    const barExpenseGradient = createGradient(barCtx, '#f5576c', '#f093fb');
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ chart_labels | safe }},
+        datasets: [
+          { label:'Income',   data: {{ chart_income | safe }},  backgroundColor: barIncomeGradient,  borderRadius:6 },
+          { label:'Expenses', data: {{ chart_expense | safe }}, backgroundColor: barExpenseGradient, borderRadius:6 }
+        ]
+      },
+      options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
+    });
+
+    // LINE trend
+    (async function buildTrend() {
+      try {
+        const r = await fetch('/api/trend/30');
+        const j = await r.json();
+        new Chart(document.getElementById('trendChart').getContext('2d'), {
+          type: 'line',
+          data: { labels: j.labels, datasets: [{ label:'Expenses (30 days)', data: j.data, fill:true, tension:.25 }] },
+          options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
+        });
+      } catch(e) { console.error(e); }
+    })();
+
+    // Category
+    (async function buildCategory() {
+      try {
+        const r = await fetch('/api/category-breakdown');
+        const j = await r.json();
+        new Chart(document.getElementById('categoryChart').getContext('2d'), {
+          type: 'doughnut',
+          data: { labels: j.labels, datasets: [{ data: j.data }] },
+          options: { plugins:{ legend:{ position:'bottom' } } }
+        });
+      } catch(e) { console.error(e); }
+    })();
+
+    // Daily Limit banner
+    (async function checkDailyLimit() {
+      try {
+        const r = await fetch('/api/daily-limit');
+        const j = await r.json();
+        const el = document.getElementById('daily-limit-banner');
+        if (!el) return;
+        if (j.limit > 0) {
+          el.style.display = 'block';
+          el.className = 'banner ' + (j.exceeded ? 'bad' : 'info');
+          el.textContent = j.exceeded
+            ? `⚠️ Daily limit exceeded: Spent ₹${j.spent} / Limit ₹${j.limit}`
+            : `ℹ️ Today's spend: ₹${j.spent} / Daily limit ₹${j.limit}`;
+        }
+      } catch(e) {}
+    })();
+  </script>
+</body>
+</html>

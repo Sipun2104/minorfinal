@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Budgets</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background:#f7f7fa; }
+    h2 { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    th { background: #eee; }
+    .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .btn { padding: 8px 16px; background: #4A90E2; color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; }
+    .btn:hover { background: #357ABD; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+  </style>
+</head>
+<body>
+  <h2>Manage Budgets ({{ month }})</h2>
+
+  <div class="form-box">
+    <form method="POST" action="{{ url_for('budgets') }}">
+      <label>Category:</label>
+      <input type="text" name="category" required>
+      <label>Month (YYYY-MM):</label>
+      <input type="month" name="month" value="{{ month }}" required>
+      <label>Amount (₹):</label>
+      <input type="number" step="0.01" name="amount" required>
+      <button type="submit" class="btn">Save Budget</button>
+    </form>
+  </div>
+
+  <h3>Budgets for {{ month }}</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Budget (₹)</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in budgets %}
+        <tr>
+          <td>{{ b.category }}</td>
+          <td>{{ b.amount }}</td>
+          <td>
+            <form action="{{ url_for('delete_budget', budget_id=b.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this budget?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="3">No budgets set yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <br>
+  <a href="{{ url_for('dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+</body>
+</html>

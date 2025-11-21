@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Expense</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      padding: 40px;
+      color: #333;
+    }
+    h2 {
+      color: #F44336;
+      margin-bottom: 20px;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #F44336;
+      color: white;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #d32f2f;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      color: #4A90E2;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h2 align="center">Add Expense</h2>
+  <form method="POST">
+    <input name="title" placeholder="Title" required>
+    <input name="date" type="date" value="{{ current_date }}" required>
+    <input name="amount" type="number" step="0.01" placeholder="Amount" required>
+    <select name="category">
+      <option>Food</option>
+      <option>Travel</option>
+      <option>Shopping</option>
+      <option>Utilities</option>
+      <option>Other</option>
+    </select>
+    <button type="submit">Add Expense</button>
+    <a href="/dashboard">⬅ Back to Dashboard</a>
+  </form>
+</body>
+</html> 

@@ -19,10 +19,6 @@
     body.dark-mode h3 { color:#80cbc4; }
 
     h3{ margin-bottom:15px; color:whitesmoke; text-shadow:1px 1px 1px #ddd; }
-      body.dark-mode h1, body.dark-mode h2 { color:#e0e0e0; text-shadow:none; }
-      body.dark-mode h3 { color:#80cbc4;
-      
-    }
 
     a { text-decoration:none; color:#4A90E2; transition:color .3s; }
     a:hover { color:#1c5fb4; }
@@ -194,6 +190,7 @@
     <a href="{{ url_for('export_pdf', month=selected_month) }}" class="action-btn">⬇️ Export PDF</a>
     <a href="/logout" class="action-btn logout-btn">🚪 Logout</a>
   </div>
+
   <!-- Budget Progress + Warnings -->
   {% if progress and progress|length > 0 %}
   <div class="soft-card">
@@ -224,10 +221,6 @@
     <div class="soft-card chart-box">
       <h2>Income vs Expense</h2>
       <canvas id="incomeExpenseChart" height="280"></canvas>
-    </div>
-    <div class="soft-card chart-box">
-      <h2>Daily Income and Expenses ({{ selected_month }})</h2>
-      <canvas id="barChart" height="280"></canvas>
     </div>
     <div class="soft-card chart-box">
       <h2>30-Day Expense Trend</h2>
@@ -287,6 +280,12 @@
       return g;
     }
 
+    const totalIncome = {{ total_income|default(0) }};
+    const totalExpenses = {{ total_expenses|default(0) }};
+    const labels = {{ chart_labels|default([])|safe }};
+    const incomeData = {{ chart_income|default([])|safe }};
+    const expenseData = {{ chart_expense|default([])|safe }};
+
     // PIE
     const pieCtx = document.getElementById('incomeExpenseChart').getContext('2d');
     new Chart(pieCtx, {
@@ -294,7 +293,7 @@
       data: {
         labels: ['Income', 'Expenses'],
         datasets: [{
-          data: [{{ total_income }}, {{ total_expenses }}],
+          data: [totalIncome, totalExpenses],
           backgroundColor: [
             createGradient(pieCtx, '#00c9ff', '#92fe9d'),
             createGradient(pieCtx, '#f5576c', '#f093fb')
@@ -305,22 +304,6 @@
       options: { plugins: { legend:{ position:'bottom' } } }
     });
 
-    // BAR
-    const barCtx = document.getElementById('barChart').getContext('2d');
-    const barIncomeGradient  = createGradient(barCtx, '#4facfe', '#00f2fe');
-    const barExpenseGradient = createGradient(barCtx, '#f5576c', '#f093fb');
-    new Chart(barCtx, {
-      type: 'bar',
-      data: {
-        labels: {{ chart_labels | safe }},
-        datasets: [
-          { label:'Income',   data: {{ chart_income | safe }},  backgroundColor: barIncomeGradient,  borderRadius:6 },
-          { label:'Expenses', data: {{ chart_expense | safe }}, backgroundColor: barExpenseGradient, borderRadius:6 }
-        ]
-      },
-      options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
-    });
-
     // LINE trend
     (async function buildTrend() {
       try {
@@ -328,7 +311,7 @@
         const j = await r.json();
         new Chart(document.getElementById('trendChart').getContext('2d'), {
           type: 'line',
-          data: { labels: j.labels, datasets: [{ label:'Expenses (30 days)', data: j.data, fill:true, tension:.25 }] },
+          data: { labels: j.labels || [], datasets: [{ label:'Expenses (30 days)', data: j.data || [], fill:true, tension:.25 }] },
           options: { responsive:true, plugins:{ legend:{ position:'bottom' } } }
         });
       } catch(e) { console.error(e); }
@@ -341,7 +324,7 @@
         const j = await r.json();
         new Chart(document.getElementById('categoryChart').getContext('2d'), {
           type: 'doughnut',
-          data: { labels: j.labels, datasets: [{ data: j.data }] },
+          data: { labels: j.labels || [], datasets: [{ data: j.data || [] }] },
           options: { plugins:{ legend:{ position:'bottom' } } }
         });
       } catch(e) { console.error(e); }

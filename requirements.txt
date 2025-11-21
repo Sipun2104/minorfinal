@@ -1,4 +1,6 @@
-Flask
-Flask-Login
-Flask-SQLAlchemy
-Werkzeug
+Flask==3.0.0
+Werkzeug==3.0.1
+pandas
+xlsxwriter
+reportlab
+gunicorn

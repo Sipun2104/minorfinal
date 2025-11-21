@@ -28,8 +28,12 @@ except Exception:
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "instance", "database.db")
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+# ----------------------------------------------------------
+# 🚀 FIXED DB PATH FOR RAILWAY
+# ----------------------------------------------------------
+DB_PATH = os.path.join("instance", "database.db")
+os.makedirs("instance", exist_ok=True)
+# ----------------------------------------------------------
 
 # Large expense threshold for push notification trigger
 LARGE_EXPENSE_THRESHOLD = float(os.environ.get("LARGE_EXPENSE_THRESHOLD", "5000"))
@@ -37,6 +41,7 @@ LARGE_EXPENSE_THRESHOLD = float(os.environ.get("LARGE_EXPENSE_THRESHOLD", "5000"
 # Special category key used for monthly total budget
 TOTAL_BUDGET_KEY = "__TOTAL__"
 TOTAL_BUDGET_LABEL = "Total (All Categories)"
+
 
 # ---------- DB helpers ----------
 def get_db():
@@ -781,5 +786,6 @@ def delete_all():
 
 # ---------- Run ----------
 if __name__ == "__main__":
-    # On Replit you may want host="0.0.0.0" and a specific port
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+

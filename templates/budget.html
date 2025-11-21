@@ -3,36 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <title>Budgets</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- Particle.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
   <style>
-    body { font-family: 'Segoe UI', sans-serif; padding: 20px; background:#f7f7fa; }
-    h2 { margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
-    th { background: #eee; }
-    .form-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .btn { padding: 8px 16px; background: #4A90E2; color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; }
-    .btn:hover { background: #357ABD; }
-    .btn-danger { background: #e74c3c; }
-    .btn-danger:hover { background: #c0392b; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      height: 100vh;
+      overflow-x: hidden;
+      padding: 40px;
+      position: relative;
+      color: white;
+    }
+
+    /* Particle layer */
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    h2, h3 {
+      text-align: center;
+      margin-bottom: 25px;
+      text-shadow: 0 0 15px rgba(255,255,255,0.6);
+    }
+
+    /* Glassmorphism card */
+    .form-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      border: 2px solid transparent;
+      transition: 0.3s;
+      animation: fadeUp 0.8s ease forwards;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+
+    .form-box:hover {
+      border-color: #00e1ff;
+      box-shadow: 0 0 20px #00e1ff,
+                  0 0 40px #00c4ff,
+                  0 0 60px #009dff;
+      transform: translateY(-5px);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    label {
+      font-size: 16px;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    input:focus {
+      transform: scale(1.04);
+      border-color: #00e1ff;
+      outline: none;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 25px;
+      border-collapse: collapse;
+      backdrop-filter: blur(5px);
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      text-align: center;
+      color: white;
+    }
+
+    th {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .btn {
+      padding: 10px 16px;
+      background: #00c8ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      transform: scale(1.08);
+      background: #0097cc;
+    }
+
+    .btn-danger {
+      background: #ff4c4c;
+    }
+
+    .btn-danger:hover {
+      background: #d63030;
+      transform: scale(1.08);
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      display: block;
+      text-align: center;
+    }
+
   </style>
 </head>
+
+
 <body>
+
+  <div id="particles-js"></div>
+
   <h2>Manage Budgets ({{ month }})</h2>
 
   <div class="form-box">
     <form method="POST" action="{{ url_for('budgets') }}">
       <label>Category:</label>
       <input type="text" name="category" required>
+
       <label>Month (YYYY-MM):</label>
       <input type="month" name="month" value="{{ month }}" required>
+
       <label>Amount (₹):</label>
       <input type="number" step="0.01" name="amount" required>
+
       <button type="submit" class="btn">Save Budget</button>
     </form>
   </div>
 
   <h3>Budgets for {{ month }}</h3>
+
   <table>
     <thead>
       <tr>
@@ -58,7 +195,20 @@
     </tbody>
   </table>
 
-  <br>
-  <a href="{{ url_for('dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+  <a href="{{ url_for('dashboard') }}" class="btn back-btn">⬅ Back to Dashboard</a>
+
+
+  <script>
+    particlesJS("particles-js", {
+      "particles": {
+        "number": { "value": 90 },
+        "size": { "value": 3 },
+        "move": { "speed": 2 },
+        "line_linked": { "enable": true, "distance": 150 },
+        "opacity": { "value": 0.5 }
+      }
+    });
+  </script>
+
 </body>
 </html>
